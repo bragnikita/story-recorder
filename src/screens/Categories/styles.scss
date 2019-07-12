@@ -1,0 +1,32 @@
+.app__category-object-list {
+
+  ul {
+    li {
+      display: block;
+    }
+  }
+
+  .__item {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 5px;
+
+    .__title {
+      text-align: left;
+      flex-grow: 1;
+    }
+
+    &.marked {
+      background-color: rgba(135, 205, 249, 0.34);
+    }
+
+    .__actions {
+
+      .ui.buttons {
+        background-color: white;
+      }
+    }
+  }
+
+}

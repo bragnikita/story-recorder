@@ -1,0 +1,102 @@
+@mixin stacked($span, $justify: flex-start) {
+  display: flex;
+  flex-direction: column;
+  justify-content: $justify;
+  align-items: center;
+  & > * {
+    margin-bottom: $span;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@mixin lined($span, $justify: flex-start) {
+  display: flex;
+  justify-content: $justify;
+  & > * {
+    margin-right: $span;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.lined-1 {
+  @include lined(0.2em);
+}
+
+.lined {
+  @extend .lined-1;
+}
+
+.lined-2 {
+  @include lined(0.5em);
+}
+
+.lined-3 {
+  @include lined(0.8em);
+}
+
+.stacked-1 {
+  @include stacked(0.2em);
+}
+
+
+.flex-grow-0 {
+  flex-grow: 0;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+.flex-vcenter {
+  display: flex;
+  align-items: center;
+}
+
+.flex-hcenter {
+  display: flex;
+  justify-content: center;
+}
+
+.flex-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.flext-left {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+.block-wrapper {
+  margin-bottom: 0.8em;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.right-top {
+  top: 0;
+  right: 0;
+}
+
+.col-green {
+  color: green;
+}
+
+.align-left {
+  text-align: left;
+}
+.align-right {
+  text-align: right;
+}

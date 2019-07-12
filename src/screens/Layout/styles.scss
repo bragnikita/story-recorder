@@ -1,0 +1,10 @@
+.layout__ControlLayout {
+  & > .__wrapper {
+    display: flex;
+    justify-content: center;
+    min-height: 100%;
+    & > .__segment {
+      max-width: 800px;
+    }
+  }
+}
