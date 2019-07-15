@@ -10,10 +10,13 @@ import classnames from "classnames";
 
 
 export const CategoryObjectsList = ({
-                                        list, categoryId
+                                        list, categoryId, ...callbacks
                                     }: {
     list?: CategoryChild[]
-    categoryId?: string
+    categoryId?: string,
+    onReorder?: (order: string[]) => void
+    onClickEdit?: (id: string) => void
+    onClickView?: (id: string) => void
 }) => {
     const store = useRootStore();
     const [children, setChildren] = useState<CategoryChild[] | undefined>(undefined);
@@ -28,7 +31,7 @@ export const CategoryObjectsList = ({
 
 
     if (children) {
-        return <Index list={children}/>
+        return <Index list={children} {...callbacks} />
     } else {
         return <Segment className="w-100 flex-hcenter">
             <Loader className=""/>
@@ -37,7 +40,12 @@ export const CategoryObjectsList = ({
     }
 };
 
-const Index = observer(({list}: { list: CategoryChild[] }) => {
+const Index = observer(({list, ...rest}: {
+    list: CategoryChild[],
+    onClickEdit?: (id: string) => void,
+    onClickView?: (id: string) => void,
+    onReorder?: (order: string[]) => void
+}) => {
 
     const [store] = useState(() => {
         class Store {
@@ -76,7 +84,30 @@ const Index = observer(({list}: { list: CategoryChild[] }) => {
             @action
             reorderCommit = () => {
                 //TODO
+                this.marked = undefined;
                 this.reordering = false;
+                if (rest.onReorder) {
+                    rest.onReorder(this.items.map((v, index) => v.id));
+                }
+            };
+
+            @action
+            startEditing = (t: CategoryChild) => {
+                if (rest.onClickEdit) rest.onClickEdit(t.id)
+            };
+
+            @action
+            startPreview = (t: CategoryChild) => {
+                if (rest.onClickView) rest.onClickView(t.id)
+            };
+
+            @action
+            addSubCategory = () => {
+            };
+
+            @action
+            addScript = () => {
+
             }
 
         }
@@ -94,7 +125,10 @@ const Index = observer(({list}: { list: CategoryChild[] }) => {
         <ul>
             {store.items.map((item) => (
                 <li key={`${item.type}_${item.id}`}>
-                    <div className={classnames("__item category", {'marked': store.marked === item})}>
+                    <div className={classnames("__item category", {
+                        'marked': store.marked === item,
+                        'hover-marked': !store.marked && store.reordering
+                    })}>
                     <span className="__title flex-vcenter">
                         <Link routeName="category_edit" routeParams={{id: item.id}}>{item.title}</Link>
                     </span>
@@ -103,12 +137,12 @@ const Index = observer(({list}: { list: CategoryChild[] }) => {
                                 <Button
                                     key={'edit'}
                                     icon='pencil alternate'
-                                    onClick={() => store.moveUp(item)}
+                                    onClick={() => store.startEditing(item)}
                                 />
                                 <Button
                                     key={'view'}
                                     icon='eye'
-                                    onClick={() => store.moveDown(item)}
+                                    onClick={() => store.startPreview(item)}
                                 />
                             </Button.Group>
                         </div>}

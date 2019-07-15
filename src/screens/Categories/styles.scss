@@ -17,7 +17,7 @@
       flex-grow: 1;
     }
 
-    &.marked {
+    &.marked, &.hover-marked:hover {
       background-color: rgba(135, 205, 249, 0.34);
     }
 

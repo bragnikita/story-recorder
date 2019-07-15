@@ -18,12 +18,16 @@ export class Script {
     type = "script";
     id: string = "";
     title: string = "";
+    index: number = -1;
 }
 
 export class Category {
     type = "category";
     id: string = "";
     title: string = "";
+    category_type: string = "general";
+    story_type: string = "";
+    index: number = -1;
     children: CategoryChild[] = [];
 }
 
