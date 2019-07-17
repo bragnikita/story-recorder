@@ -1,15 +1,22 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {CategoryObjectsList} from "./list";
-import {Category, CategoryChild, Script} from "../../stores/uistore";
-import {Button, Header, Modal} from "semantic-ui-react";
+import {UiStore} from "../../stores/uistore";
+import {Button, Header, Loader, Modal} from "semantic-ui-react";
 import {CategoryForm, CategoryFormModel} from "./form";
 import {action, observable} from "mobx";
-import {AsyncFormCallback, AsyncFormCallbackImpl} from "../../utils/stores";
+import {AsyncFormCallbackImpl} from "../../utils/stores";
 import {observer} from "mobx-react";
 import _ from 'lodash';
 import {inspect} from "util";
+import {GlobalErrorMessage} from "../Layout";
+import {useRootStore} from "../../components/hook";
+import {Category, CategoryChild, Script} from "../../stores/domain_stores";
 
 class Store {
+
+    rootStore: UiStore;
+
+    @observable category: Category | undefined;
 
     @observable
     list: CategoryChild[] = [];
@@ -43,7 +50,7 @@ class Store {
         return cat;
     };
 
-    onReoder = (order: string[]) => {
+    onReoder = async (order: string[]) => {
         console.log(order)
         this.list.forEach((o) => {
             const newIndex = order.indexOf(o.id);
@@ -58,7 +65,8 @@ class Store {
         return this.list.find((v) => v.id === id)
     }
 
-    constructor() {
+    constructor(rootStore: UiStore) {
+        this.rootStore = rootStore;
         const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 12, 13, 14].map((id) => {
             let item: CategoryChild = new Category();
             if (id === 3) {
@@ -71,17 +79,42 @@ class Store {
         this.list.push(...list);
     }
 
+    reload = async (id: string) => {
+        this.category = await this.rootStore.substores.categories.fetch(id);
+    }
+
 }
 
 const CategoryPage = observer(() => {
 
+    const rootStore = useRootStore();
+
     const [store] = useState(() => {
-        const store = new Store();
-        return store
+        const store = new Store(rootStore);
+        return store;
     });
 
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setLoading(true);
+        store.reload(rootStore.currentState.params['id']).then(() => {
+            setLoading(false);
+        });
+    }, [rootStore.currentState.params['id']]);
+
+    if (loading) {
+        return <Loader active className="w-100 d-flex justify-content-center"/>
+    }
+    if (!store.category) return null;
 
     return <div className="page__CategoryPage">
+        <GlobalErrorMessage/>
+        <div className="mb-2">
+            <Header textAlign={"left"}>
+                {store.category.title}
+            </Header>
+        </div>
         <div className="lined-1 flex-right mb-2">
             <Button icon={"plus"} content={"Add script"} color="green" onClick={() => {
             }}/>

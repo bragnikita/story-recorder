@@ -1,6 +1,8 @@
 import React from 'react';
 import {Segment} from "semantic-ui-react";
 import "./styles.scss";
+import {useRootStore} from "../../components/hook";
+import {observer} from "mobx-react";
 
 
 export const ControlLayout = (props: { children: React.ReactNode }) => {
@@ -20,3 +22,13 @@ export const NonLoggedInLayout = () => {
 export const ReaderLayout = () => {
 
 };
+
+export const GlobalErrorMessage = observer(() => {
+    const store = useRootStore();
+    if (!store.errorMessage.message) {
+        return null;
+    }
+    return <Segment size={"small"} className={"w-100"} secondary color={"red"}>
+        {store.errorMessage.message}
+    </Segment>
+});

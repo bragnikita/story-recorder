@@ -1,4 +1,4 @@
-import {ConfigurableInterceptor, HttpResponse} from "./utils/http";
+import {ApiRequestError, ConfigurableInterceptor, HttpResponse} from "./utils/http";
 import {inspect} from "util";
 
 export const config = (factory: ConfigurableInterceptor) => {
@@ -16,23 +16,22 @@ export const config = (factory: ConfigurableInterceptor) => {
     factory.addHandler(/\/categories\/(.+)/, (cfg, match) => {
         if (cfg.verb !== 'get') return;
         const id = match[1];
+        if (id === "-1") {
+            const err = new ApiRequestError(new Error('Test message'));
+            err.status = 400;
+            return Promise.resolve({
+                error: err,
+                headers: {},
+                status: err.status,
+            });
+        }
         return Promise.resolve({
             data: {
                 item: {
                     id: id,
                     title: 'Category title #' + id,
-                    children: [
-                        {
-                            id: `${id}_1`,
-                            type: 'category',
-                            title: `Child category #${id}_1`
-                        },
-                        {
-                            id: `${id}_2`,
-                            type: 'category',
-                            title: `Child category #${id}_2`
-                        }
-                    ]
+                    index: 5,
+                    category_type: 'story',
                 }
             },
             headers: {},

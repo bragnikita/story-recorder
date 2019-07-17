@@ -3,10 +3,10 @@ import {Button, Loader, Segment} from "semantic-ui-react";
 import {Link} from 'react-router5';
 import './styles.scss';
 import {action, observable} from "mobx";
-import {CategoryChild} from "../../stores/uistore";
 import {observer} from "mobx-react";
 import {useRootStore} from "../../components/hook";
 import classnames from "classnames";
+import {CategoryChild} from "../../stores/domain_stores";
 
 
 export const CategoryObjectsList = ({

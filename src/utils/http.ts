@@ -40,7 +40,8 @@ export class HttpRequest {
     };
     errorHandler: RequestErrorHandler = () => true;
     errorHandlerDefault: RequestErrorHandler = () => true;
-    interceptor: HttpRequestInterceptorMethod = cfg => {};
+    interceptor: HttpRequestInterceptorMethod = cfg => {
+    };
 
     constructor(base?: HttpRequest) {
         if (base) {
@@ -82,7 +83,28 @@ export class HttpRequest {
         }
         const intercepted = this.interceptor(cfg);
         if (intercepted) {
-            return intercepted;
+            return new Promise<HttpResponse>(resolve => {
+                intercepted.then((response) => {
+                    if (response.error) {
+                        const apiError = response.error;
+                        const blocker = () => {
+                        };
+                        let next = this.errorHandler(apiError, blocker);
+                        if (next === blocker) {
+                            return;
+                        }
+                        if (next) {
+                            next = this.errorHandlerDefault(apiError, blocker);
+                            if (next === blocker) {
+                                return;
+                            }
+                        }
+                        resolve(response)
+                    } else {
+                        resolve(response);
+                    }
+                });
+            });
         }
 
         const req = this.selectReq(verb);
@@ -138,7 +160,6 @@ export class HttpRequest {
                 }
                 if (next) {
                     next = this.errorHandlerDefault(apiError, blocker);
-                    console.log(next);
                     if (next === blocker) {
                         return;
                     }
@@ -180,6 +201,7 @@ export class ExtendedHttpRequest extends HttpRequest {
     constructor(base: HttpRequest) {
         super(base);
     }
+
     getJson = (url: string, query?: {}) => {
         const request = new HttpRequest(this);
         return request.request("get", url, query);
@@ -321,7 +343,7 @@ class SimpleInterceptor {
     pattern: RegExp;
     handler: ConfigurableInterceptorMethod;
 
-    constructor(pattern: RegExp , handler: ConfigurableInterceptorMethod) {
+    constructor(pattern: RegExp, handler: ConfigurableInterceptorMethod) {
         this.pattern = pattern;
         this.handler = handler;
     }
@@ -330,6 +352,7 @@ class SimpleInterceptor {
 interface HttpRequestInterceptor {
     handler: HttpRequestInterceptorMethod;
 }
+
 export type ConfigurableInterceptorMethod = (cfg: RequestConfig, match: RegExpMatchArray) => Promise<HttpResponse> | void;
 
 export class ConfigurableInterceptor implements HttpRequestInterceptor {

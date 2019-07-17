@@ -19,7 +19,7 @@ const PageDisplayer = observer(({store}: { store: UiStore }) => {
         {name === 'home' && <div>Home</div>}
         {name === 'login' && <Login/>}
         {name === 'not_found' && <div>Not found</div>}
-        {name === 'categories' && <ControlLayout>
+        {(name === 'categories' || name == 'category_edit') && <ControlLayout>
             <CategoryPage/>
         </ControlLayout>}
     </React.Fragment>

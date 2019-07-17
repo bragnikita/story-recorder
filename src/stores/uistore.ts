@@ -6,31 +6,12 @@ import {MiddlewareFactory} from "router5/types/types/router";
 import {inspect} from "util";
 import {Client, ConfigurableInterceptor, HttpRequest, HttpResponse} from "../utils/http";
 import {config} from "../utils/config";
+import {CategoriesStore} from "./domain_stores";
 
 
 class Account {
 
 }
-
-export type CategoryChild = Category | Script
-
-export class Script {
-    type = "script";
-    id: string = "";
-    title: string = "";
-    index: number = -1;
-}
-
-export class Category {
-    type = "category";
-    id: string = "";
-    title: string = "";
-    category_type: string = "general";
-    story_type: string = "";
-    index: number = -1;
-    children: CategoryChild[] = [];
-}
-
 
 export class UiStore {
     @observable
@@ -41,6 +22,16 @@ export class UiStore {
     httpInterceptor: ConfigurableInterceptor = new ConfigurableInterceptor();
 
     private account: Account | undefined = undefined;
+
+    @observable
+    errorMessage = {
+        message:"",
+        updatedAt: new Date(new Date().getTime() - 1000*5)
+    };
+
+    readonly substores: {
+        categories: CategoriesStore,
+    };
 
     constructor() {
         const routes: Route[] = [
@@ -66,7 +57,9 @@ export class UiStore {
             return this.setState(toState);
         })));
         this._router.useMiddleware(...middlewares);
-        this._router.start('/');
+
+        const starterPath = window.location.pathname;
+        this._router.start(starterPath);
 
         const http = new HttpRequest();
         http.baseUrl = config.baseUrl;
@@ -85,6 +78,10 @@ export class UiStore {
         http.interceptor = this.httpInterceptor.handler;
 
         this._http = new Client(http);
+
+        this.substores = {
+            categories: new CategoriesStore(this),
+        }
     }
 
     @action
@@ -98,8 +95,13 @@ export class UiStore {
             return Promise.reject({redirect: {name: 'home'}})
         }
         this._currentState = nextState;
+        console.log('current_state', this._currentState.name);
         return Promise.resolve(nextState);
     };
+
+    get http() {
+        return this._http.req;
+    }
 
     @computed
     get currentState() {
@@ -109,6 +111,17 @@ export class UiStore {
     get router() {
         return this._router;
     }
+
+    /**
+     * Update only after 5 sec after the previous error
+    */
+    @action
+    setError = (message?: string) => {
+        if (new Date(this.errorMessage.updatedAt.getTime() + 5*1000) < new Date()) {
+            this.errorMessage.message = message || "";
+            this.errorMessage.updatedAt = new Date();
+        }
+    };
 
     signIn = (account: Account) => {
         this.account = account;
@@ -135,8 +148,15 @@ export class UiStore {
     tryAutoSignIn = async () => {
         if (this.getAuthToken()) {
             this.signIn(new Account());
-            this.router.navigate('categories')
+            const starterPath = this.router.matchPath(window.location.pathname);
+            if (starterPath) {
+                this.router.navigate(starterPath.name, starterPath.params)
+            } else {
+                this.router.navigate('categories')
+            }
         }
     }
+
+
 
 }
