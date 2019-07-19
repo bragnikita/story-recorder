@@ -9,8 +9,9 @@ import {observer} from "mobx-react";
 import _ from 'lodash';
 import {inspect} from "util";
 import {GlobalErrorMessage} from "../Layout";
-import {useRootStore} from "../../components/hook";
+import {PageProducer, useRootStore} from "../../components/hook";
 import {Category, CategoryChild, Script} from "../../stores/domain_stores";
+import {delay} from "q";
 
 class Store {
 
@@ -85,27 +86,7 @@ class Store {
 
 }
 
-const CategoryPage = observer(() => {
-
-    const rootStore = useRootStore();
-
-    const [store] = useState(() => {
-        const store = new Store(rootStore);
-        return store;
-    });
-
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        setLoading(true);
-        store.reload(rootStore.currentState.params['id']).then(() => {
-            setLoading(false);
-        });
-    }, [rootStore.currentState.params['id']]);
-
-    if (loading) {
-        return <Loader active className="w-100 d-flex justify-content-center"/>
-    }
+const CategoryPage = observer(({store}: { store: Store }) => {
     if (!store.category) return null;
 
     return <div className="page__CategoryPage">
@@ -139,37 +120,43 @@ const CategoryPage = observer(() => {
     </div>
 });
 
+export const CategoriesPageProducer: PageProducer<UiStore> = async (store) => {
+    const localStore = new Store(store);
+    await localStore.reload(store.currentState.params['id']);
+    await delay(1000);
+    return () => <CategoryPage store={localStore}/>
+};
+
 const CategoryEditFormModal = observer(({store}: { store: Store }) => {
 
 
-        const [asyncHandler] = useState(new AsyncFormCallbackImpl<CategoryFormModel>());
+    const [asyncHandler] = useState(new AsyncFormCallbackImpl<CategoryFormModel>());
 
-        return <Modal
-            open={!!store.selected}
-            onClose={() => store.select()}
-        >
-            <Header content="Edit category"/>
-            <Modal.Content>
-                {store.selected && <CategoryForm
-                    callback={asyncHandler}
-                    model={store.selected}
+    return <Modal
+        open={!!store.selected}
+        onClose={() => store.select()}
+    >
+        <Header content="Edit category"/>
+        <Modal.Content>
+            {store.selected && <CategoryForm
+                callback={asyncHandler}
+                model={store.selected}
 
-                />}
-            </Modal.Content>
-            <Modal.Actions>
-                <Button secondary color='red'
-                        onClick={() => store.select()}
-                >Cancel</Button>
-                <Button color='green' primary onClick={() => {
-                    asyncHandler.requestForm(async (form, error) => {
-                        if (form) {
-                            store.save(form)
-                        }
-                    });
-                }}>Save</Button>
-            </Modal.Actions>
-        </Modal>
-    })
-;
+            />}
+        </Modal.Content>
+        <Modal.Actions>
+            <Button secondary color='red'
+                    onClick={() => store.select()}
+            >Cancel</Button>
+            <Button color='green' primary onClick={() => {
+                asyncHandler.requestForm(async (form, error) => {
+                    if (form) {
+                        store.save(form)
+                    }
+                });
+            }}>Save</Button>
+        </Modal.Actions>
+    </Modal>
+});
 
 export default CategoryPage;

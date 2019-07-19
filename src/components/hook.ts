@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useState} from "react";
 import {UiStore} from "../stores/uistore";
+import {State} from "router5";
 
 export const RootStoreContext = React.createContext<UiStore | null>(null);
 
@@ -23,3 +24,7 @@ export const useModal = () => {
         onOpen: onOpen,
     }
 };
+
+export type PageFactory = () => JSX.Element;
+
+export type PageProducer<T> = (params: T) => Promise<PageFactory>
