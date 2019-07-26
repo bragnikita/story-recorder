@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Segment} from "semantic-ui-react";
 import "./styles.scss";
 import {useRootStore} from "../../components/hook";
@@ -24,7 +24,9 @@ export const ReaderLayout = () => {
 };
 
 export const GlobalErrorMessage = observer(() => {
+
     const store = useRootStore();
+
     if (!store.errorMessage.message) {
         return null;
     }

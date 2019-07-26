@@ -141,7 +141,6 @@ export class HttpRequest {
             }).catch((err: { message: String, response: Response }) => {
                 //const apiError = new ApiRequestError(err.response);
                 const apiError = new ApiRequestError(undefined);
-                apiError.status = 401;
 
                 let errorBody;
                 if (!apiError.isNetworkError()) {

@@ -52,7 +52,10 @@ class Store {
     };
 
     onReoder = async (order: string[]) => {
-        console.log(order)
+        if (!this.category) return;
+        await this.rootStore.substores.categories.reorder(
+            this.category.id, order
+        );
         this.list.forEach((o) => {
             const newIndex = order.indexOf(o.id);
             o.index = newIndex;

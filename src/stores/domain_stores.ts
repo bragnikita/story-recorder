@@ -70,7 +70,6 @@ export class CategoriesStore {
     fetch = async (id: string) => {
         const httpRequest = new HttpRequest(this.client);
         httpRequest.errorHandler = (error1, blocker) => {
-            console.log('blocking')
             return blocker
         };
         const {data, error} = await new Client(httpRequest).getJson(`/categories/${id}`);
@@ -83,5 +82,11 @@ export class CategoriesStore {
         }
     };
 
+    reorder = async (categoryId: string, childOrder: string[]) => {
+        const httpRequest = new HttpRequest(this.client);
+        await new Client(httpRequest).putJson(`/categories/${categoryId}`, {
+            children_order: childOrder,
+        });
+    }
 
 }

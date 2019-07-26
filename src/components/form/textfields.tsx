@@ -38,7 +38,7 @@ export const TextField = observer((props: TextFieldProps) => {
     </div>;
 });
 
-const FieldLabel = ({label, required = false}: { label?: string, required?: boolean }) => {
+export const FieldLabel = ({label, required = false}: { label?: string, required?: boolean }) => {
     if (label) {
         return <label className="d-block app_form-label">{label}{required ? '*' : ''}</label>
     }

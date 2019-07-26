@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {Route, Router, State} from "router5";
 import createRouter from "router5";
 import browserPlugin from "router5-plugin-browser";
@@ -7,6 +7,7 @@ import {inspect} from "util";
 import {Client, ConfigurableInterceptor, HttpRequest, HttpResponse} from "../utils/http";
 import {config} from "../utils/config";
 import {CategoriesStore} from "./domain_stores";
+import {number} from "prop-types";
 
 
 class Account {
@@ -23,11 +24,13 @@ export class UiStore {
 
     private account: Account | undefined = undefined;
 
-    @observable
-    errorMessage = {
-        message:"",
-        updatedAt: new Date(new Date().getTime() - 1000*5)
-    };
+
+    errorMessage = observable({
+        message: "",
+        updatedAt: new Date(new Date().getTime() - 1000 * 5),
+        deleteAt: 0,
+        autoClose: false,
+    });
 
     readonly substores: {
         categories: CategoriesStore,
@@ -76,12 +79,33 @@ export class UiStore {
             }
         };
         http.interceptor = this.httpInterceptor.handler;
+        http.errorHandlerDefault = ((error, blocker) => {
+            if (error.isServerError() || error.isNetworkError() || error.getStatus() === 404) {
+                this.setError(error.getMessage());
+                return blocker;
+            }
+            return true;
+        });
 
         this._http = new Client(http);
 
         this.substores = {
             categories: new CategoriesStore(this),
-        }
+        };
+
+
+        reaction(() => this.errorMessage.updatedAt, (updatedAt) => {
+            if (!this.errorMessage.autoClose) return;
+
+            if (this.errorMessage.deleteAt) {
+                window.clearTimeout(this.errorMessage.deleteAt);
+            }
+            this.errorMessage.deleteAt = window.setTimeout(() => {
+                if (updatedAt === this.errorMessage.updatedAt) {
+                    this.errorMessage.message = "";
+                }
+            }, 5000)
+        });
     }
 
     @action
@@ -114,12 +138,19 @@ export class UiStore {
 
     /**
      * Update only after 5 sec after the previous error
-    */
+     */
     @action
-    setError = (message?: string) => {
-        if (new Date(this.errorMessage.updatedAt.getTime() + 5*1000) < new Date()) {
+    setError = (message?: string, critical?: boolean) => {
+        if (critical === true) {
             this.errorMessage.message = message || "";
             this.errorMessage.updatedAt = new Date();
+            this.errorMessage.autoClose = false;
+        } else {
+            if (new Date(this.errorMessage.updatedAt.getTime() + 2 * 1000) < new Date()) {
+                this.errorMessage.message = message || "";
+                this.errorMessage.updatedAt = new Date();
+                this.errorMessage.autoClose = true;
+            }
         }
     };
 
@@ -156,7 +187,6 @@ export class UiStore {
             }
         }
     }
-
 
 
 }
