@@ -7,6 +7,7 @@ import {observer} from "mobx-react";
 import {useRootStore} from "../../components/hook";
 import classnames from "classnames";
 import {CategoryChild} from "../../stores/domain_stores";
+import {OrderMap} from "../../utils/stores";
 
 
 export const CategoryObjectsList = ({
@@ -14,7 +15,7 @@ export const CategoryObjectsList = ({
                                     }: {
     list?: CategoryChild[]
     categoryId?: string,
-    onReorder?: (order: string[]) => void
+    onReorder?: (cats: OrderMap, scripts: OrderMap) => void
     onClickEdit?: (id: string) => void
     onClickView?: (id: string) => void
 }) => {
@@ -44,7 +45,7 @@ const Index = observer(({list, ...rest}: {
     list: CategoryChild[],
     onClickEdit?: (id: string) => void,
     onClickView?: (id: string) => void,
-    onReorder?: (order: string[]) => void
+    onReorder?: (categories: OrderMap, scripts: OrderMap) => void
 }) => {
 
     const [store] = useState(() => {
@@ -87,7 +88,16 @@ const Index = observer(({list, ...rest}: {
                 this.marked = undefined;
                 this.reordering = false;
                 if (rest.onReorder) {
-                    rest.onReorder(this.items.map((v, index) => v.id));
+                    const cats: OrderMap = {}, scripts: OrderMap = {};
+                    for (let i = 0; i < this.items.length; i++) {
+                        const item = this.items[i];
+                        if (item.type === 'category') {
+                            cats[item.id] = i;
+                        } else {
+                            scripts[item.id] = i;
+                        }
+                    }
+                    rest.onReorder(cats, scripts);
                 }
             };
 
@@ -121,7 +131,7 @@ const Index = observer(({list, ...rest}: {
             {!store.reordering && <Button basic onClick={store.reorderStart}>Reorder</Button>}
             {store.reordering && <Button basic color="green" onClick={store.reorderCommit}>Commit</Button>}
         </div>
-        <Segment color="grey" size="small" className="w-100 text-left">Empty</Segment>
+        { store.items.length == 0 && <Segment color="grey" size="small" className="w-100 text-left">Empty</Segment> }
         <ul>
             {store.items.map((item) => (
                 <li key={`${item.type}_${item.id}`}>

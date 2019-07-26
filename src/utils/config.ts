@@ -1,5 +1,5 @@
 class Config {
-    readonly baseUrl = "";
+    readonly baseUrl = "http://localhost:3004";
 }
 
 export const config = new Config();

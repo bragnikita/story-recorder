@@ -66,7 +66,7 @@ export class UiStore {
         http.beforeRequestDefault = config1 => {
             const token = this.getAuthToken();
             if (token) {
-                config1.headers['x-token'] = token;
+                config1.headers['Authorization'] = `Bearer ${token}`;
             }
         };
         http.afterRequestDefault = response => {
@@ -76,6 +76,17 @@ export class UiStore {
             }
         };
         http.interceptor = this.httpInterceptor.handler;
+        http.errorHandlerDefault = (error, blocker) => {
+            if (error.isServerError() ||
+                error.isNetworkError() ||
+                error.getStatus() === 404 ||
+                error.getStatus() === 403
+            ) {
+                this.setError(error.getMessage());
+                return blocker;
+            }
+            return true;
+        };
 
         this._http = new Client(http);
 

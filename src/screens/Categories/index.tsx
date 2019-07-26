@@ -1,17 +1,19 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {CategoryObjectsList} from "./list";
 import {UiStore} from "../../stores/uistore";
-import {Button, Header, Loader, Modal} from "semantic-ui-react";
+import {Button, Header, Modal} from "semantic-ui-react";
 import {CategoryForm, CategoryFormModel} from "./form";
 import {action, observable} from "mobx";
-import {AsyncFormCallbackImpl} from "../../utils/stores";
+import {AsyncFormCallbackImpl, OrderMap} from "../../utils/stores";
 import {observer} from "mobx-react";
 import _ from 'lodash';
+
 import {inspect} from "util";
 import {GlobalErrorMessage} from "../Layout";
-import {PageProducer, useRootStore} from "../../components/hook";
+import {PageProducer} from "../../components/hook";
 import {Category, CategoryChild, Script} from "../../stores/domain_stores";
 import {delay} from "q";
+import {Link} from "react-router5";
 
 class Store {
 
@@ -28,6 +30,7 @@ class Store {
     @action
     save = async (form: CategoryFormModel) => {
         console.log(inspect(form));
+        await this.rootStore.substores.categories.upsert(form);
         this.select();
     };
 
@@ -47,41 +50,41 @@ class Store {
     };
 
     createNew = (): Category => {
-        const cat = new Category();
-        return cat;
+        return new Category();
     };
 
-    onReoder = async (order: string[]) => {
-        console.log(order)
+    onReoder = async (cats: OrderMap, scripts: OrderMap) => {
         this.list.forEach((o) => {
-            const newIndex = order.indexOf(o.id);
-            o.index = newIndex;
+            if (o.type === 'category') {
+                o.index = cats[o.id]
+            } else {
+                o.index = scripts.id;
+            }
         });
-        const sorted = _.sortBy(this.list, (o) => o.index)
-        this.list.splice(0, this.list.length)
+        const sorted = _.sortBy(this.list, (o) => o.index);
+        this.list.splice(0, this.list.length);
         this.list.push(...sorted);
+        if (!this.category) return;
+        await this.rootStore.substores.categories.reorderChildren(this.category.id, {
+            categories: cats,
+            scripts: scripts,
+        });
     };
 
     find = (id: string) => {
         return this.list.find((v) => v.id === id)
-    }
+    };
 
     constructor(rootStore: UiStore) {
         this.rootStore = rootStore;
-        const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 11, 12, 13, 14].map((id) => {
-            let item: CategoryChild = new Category();
-            if (id === 3) {
-                item = new Script();
-            }
-            item.id = `${id}`;
-            item.title = id === 3 ? `Script #${id}` : `Category #${id}`
-            return item;
-        });
-        this.list.push(...list);
     }
 
     reload = async (id: string) => {
-        this.category = await this.rootStore.substores.categories.fetch(id);
+        this.category = await this.rootStore.substores.categories.fetch(id || "root");
+        if (this.category) {
+            this.list = await this.rootStore.substores.categories.fetchChildCategoriesAndScripts(this.category.id);
+            console.log(inspect(this.list))
+        }
     }
 
 }
@@ -93,6 +96,8 @@ const CategoryPage = observer(({store}: { store: Store }) => {
         <GlobalErrorMessage/>
         <div className="mb-2">
             <Header textAlign={"left"}>
+                {store.category.parentId &&
+                <Link routeName="category_edit" routeParams={{id: store.category.parentId}}>. . / </Link>}
                 {store.category.title}
             </Header>
         </div>
@@ -122,8 +127,7 @@ const CategoryPage = observer(({store}: { store: Store }) => {
 
 export const CategoriesPageProducer: PageProducer<UiStore> = async (store) => {
     const localStore = new Store(store);
-    await localStore.reload(store.currentState.params['id']);
-    await delay(1000);
+    await localStore.reload(store.currentState.params['id'] || "root");
     return () => <CategoryPage store={localStore}/>
 };
 

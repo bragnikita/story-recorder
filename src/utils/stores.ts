@@ -10,3 +10,5 @@ export class AsyncFormCallbackImpl<T> implements AsyncFormCallback<T>{
         return cb(undefined, "Not implemented")
     }
 }
+
+export type OrderMap = { [key: string]: number };
