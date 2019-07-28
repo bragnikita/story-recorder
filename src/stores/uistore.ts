@@ -1,13 +1,11 @@
 import {action, computed, observable, reaction} from "mobx";
-import {Route, Router, State} from "router5";
-import createRouter from "router5";
+import createRouter, {Route, Router, State} from "router5";
 import browserPlugin from "router5-plugin-browser";
 import {MiddlewareFactory} from "router5/types/types/router";
 import {inspect} from "util";
-import {Client, ConfigurableInterceptor, HttpRequest, HttpResponse} from "../utils/http";
+import {Client, ConfigurableInterceptor, HttpRequest} from "../utils/http";
 import {config} from "../utils/config";
 import {CategoriesStore} from "./domain_stores";
-import {number} from "prop-types";
 
 
 class Account {
@@ -69,7 +67,7 @@ export class UiStore {
         http.beforeRequestDefault = config1 => {
             const token = this.getAuthToken();
             if (token) {
-                config1.headers['x-token'] = token;
+                config1.headers['Authorization'] = `Bearer ${token}`;
             }
         };
         http.afterRequestDefault = response => {
@@ -79,13 +77,17 @@ export class UiStore {
             }
         };
         http.interceptor = this.httpInterceptor.handler;
-        http.errorHandlerDefault = ((error, blocker) => {
-            if (error.isServerError() || error.isNetworkError() || error.getStatus() === 404) {
+        http.errorHandlerDefault = (error, blocker) => {
+            if (error.isServerError() ||
+                error.isNetworkError() ||
+                error.getStatus() === 404 ||
+                error.getStatus() === 403
+            ) {
                 this.setError(error.getMessage());
                 return blocker;
             }
             return true;
-        });
+        };
 
         this._http = new Client(http);
 
