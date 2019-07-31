@@ -1,6 +1,13 @@
 .app__category-object-list {
 
   ul {
+    .__item {
+      border: 1px solid gainsboro;
+      border-bottom: none;
+    }
+    li:last-child .__item {
+      border: 1px solid gainsboro;
+    }
     li {
       display: block;
     }
@@ -10,7 +17,8 @@
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    padding: 5px;
+    padding: 5px 5px 5px 15px;
+
 
     .__title {
       text-align: left;

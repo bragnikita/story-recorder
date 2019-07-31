@@ -15,6 +15,7 @@ interface TextFieldProps extends StyledFormComponent {
     placeholder?: string,
     required?: boolean,
     password?: boolean,
+    disabled?: boolean,
 }
 
 export const TextField = observer((props: TextFieldProps) => {
@@ -25,9 +26,10 @@ export const TextField = observer((props: TextFieldProps) => {
         props.className,
     );
     return <div className={wrapperClasses}>
-        <FieldLabel label={props.label} required={props.required}/>
+        <FieldLabel label={props.label} required={props.required && !props.disabled}/>
         <Input
             fluid
+            disabled={props.disabled}
             size="mini"
             type={props.password ? 'password' : 'text'}
             value={props.state.value}

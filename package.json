@@ -18,6 +18,8 @@
     "react-dom": "^16.8.6",
     "react-router5": "^7.1.0",
     "react-scripts": "3.0.1",
+    "react-textarea-autosize": "^7.1.0",
+    "reflect-metadata": "^0.1.13",
     "router5": "^7.0.2",
     "router5-plugin-browser": "^7.0.2",
     "router5-react": "^0.1.6",
@@ -50,6 +52,8 @@
   "devDependencies": {
     "@types/classnames": "^2.2.9",
     "@types/lodash": "^4.14.135",
+    "@types/react-textarea-autosize": "^4.3.4",
+    "@types/reflect-metadata": "^0.1.0",
     "@types/superagent": "^4.1.2",
     "node-sass": "^4.12.0"
   }

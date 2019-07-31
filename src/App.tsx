@@ -10,6 +10,7 @@ import {CategoriesPageProducer} from "./screens/Categories";
 import {ControlLayout} from "./screens/Layout";
 import {Loader} from "semantic-ui-react";
 import {State} from "router5";
+import {UsersManagement} from "./screens/Users";
 
 
 const PageDisplayer = observer(({store}: { store: UiStore }) => {
@@ -18,13 +19,22 @@ const PageDisplayer = observer(({store}: { store: UiStore }) => {
     const name = state.name;
 
     return <React.Fragment>
-        {name === 'home' && <div>Home</div>}
         {name === 'login' && <Login/>}
         {name === 'not_found' && <div>Not found</div>}
+        {name === 'home' &&
+        <ControlLayout>
+            <div>Home</div>
+        </ControlLayout>
+        }
         {(name === 'categories' || name == 'category_edit') &&
         <ControlLayout>
             <LoadablePage producer={CategoriesPageProducer} state={state}/>
         </ControlLayout>}
+        {(name.startsWith('users')) &&
+        <ControlLayout>
+            <UsersManagement />
+        </ControlLayout>
+        }
     </React.Fragment>
 });
 
@@ -33,7 +43,6 @@ const LoadablePage = ({producer, state}: { producer: PageProducer<UiStore>, stat
     const loader = <Loader active className="w-100 d-flex justify-content-center"/>;
     const [pageFactory, setPageFactory] = useState<JSX.Element>(() => loader);
     useEffect(() => {
-        console.log('running', state.name);
         setPageFactory(loader);
         let cancel = false;
         producer(store).then((factory) => {
@@ -42,7 +51,6 @@ const LoadablePage = ({producer, state}: { producer: PageProducer<UiStore>, stat
             }
         });
         return () => {
-            console.log('cancelled', state.name);
             cancel = true;
         }
     }, [state]);

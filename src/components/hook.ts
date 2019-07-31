@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {UiStore} from "../stores/uistore";
 import {State} from "router5";
 
@@ -11,6 +11,16 @@ export const useRootStore = () => {
   }
   return store;
 };
+
+export const useRouter = () => {
+    const store = useRootStore();
+    return store.router;
+};
+
+export const useCurrentState = () => {
+    const store = useRootStore();
+    return store.currentState;
+}
 
 export const useModal = () => {
     const [open, setOpen] = useState(false);
@@ -25,6 +35,17 @@ export const useModal = () => {
     }
 };
 
+export const useWaitForPromise = <T>( p: () => Promise<T>) => {
+    const [s, setS] = useState({ loading: true, value: undefined as T | undefined})
+    useEffect(() => {
+        p().then((v:T) => {
+            setS({ loading: false, value: v});
+        })
+    },[p]);
+    return s;
+};
+
 export type PageFactory = () => JSX.Element;
 
 export type PageProducer<T> = (params: T) => Promise<PageFactory>
+export type PageProducer2<T> = (store: UiStore, state: State, params: T) => Promise<PageFactory>

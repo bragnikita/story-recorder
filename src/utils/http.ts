@@ -239,6 +239,10 @@ export class Client {
         return this.req.putJson(url, json);
     };
 
+    delete = (url: string) => {
+        return this.req.request('delete', url);
+    };
+
     get req() {
         return new ExtendedHttpRequest(this.base);
     }

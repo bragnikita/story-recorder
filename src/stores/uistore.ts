@@ -5,7 +5,7 @@ import {MiddlewareFactory} from "router5/types/types/router";
 import {inspect} from "util";
 import {Client, ConfigurableInterceptor, HttpRequest} from "../utils/http";
 import {config} from "../utils/config";
-import {CategoriesStore} from "./domain_stores";
+import {CategoriesStore, UsersStore} from "./domain_stores";
 
 
 class Account {
@@ -32,6 +32,7 @@ export class UiStore {
 
     readonly substores: {
         categories: CategoriesStore,
+        users: UsersStore,
     };
 
     constructor() {
@@ -41,6 +42,11 @@ export class UiStore {
             {path: '/categories', name: 'categories'},
             {path: '/category/:id', name: 'category_edit'},
             {path: '/script/:id', name: 'script_edit'},
+            {path: '/users', name: 'users', forwardTo: 'users.list'},
+            {path: '/list', name: 'users.list'},
+            {path: '/:id/edit', name: 'users.edit'},
+            {path: '/:id', name: 'users.view'},
+            {path: '/create', name: 'users.create'},
             {path: '/r/:id', name: 'script_read'},
             {path: '/c/:id', name: 'category_read'},
             {path: '/not_found', name: 'not_found'}
@@ -93,6 +99,7 @@ export class UiStore {
 
         this.substores = {
             categories: new CategoriesStore(this),
+            users: new UsersStore(this),
         };
 
 

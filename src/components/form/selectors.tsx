@@ -37,3 +37,21 @@ export const SyncSelector = observer(<T extends any>(props: SyncSelectorProps<T>
         />
     </div>
 });
+
+export const MultipleSelector = observer((props: {
+    label?: string, state: FieldState<string[]>,  placeholder: string, opts: {
+        text: string,
+        value: string,
+    }[],
+    loading?: boolean
+}) => {
+
+    return <div className="form-component">
+        <Dropdown fluid multiple selection placeholder={props.placeholder}
+                  value={props.state.value}
+                  onChange={(e, {value}) => props.state.onChange(value as any)}
+                  options={props.opts}
+                  loading={props.loading}
+        />
+    </div>
+});

@@ -1,13 +1,16 @@
 import {TextField} from "../../components/form/textfields";
-import * as React from "react";
-import {useState} from "react";
+import React, { useState} from "react";
 import {FieldState, FormState} from "formstate";
 import {AsyncFormCallback} from "../../utils/stores";
-import {SyncSelector} from "../../components/form/selectors";
+import {MultipleSelector, SyncSelector} from "../../components/form/selectors";
 import {CategoryTypes, StoryTypes} from "../../stores/dictionaries";
 import {observer} from "mobx-react";
+import {delay} from 'q';
 import {inspect} from "util";
 import {required} from "../../utils/validators";
+import {Dropdown, DropdownItemProps, DropdownProps} from "semantic-ui-react";
+import {useRootStore, useWaitForPromise} from "../../components/hook";
+import {User} from "../../stores/domain_stores";
 
 export type CategoryFormModel = {
     id?: string,
@@ -16,6 +19,7 @@ export type CategoryFormModel = {
     category_type: string,
     story_type?: string,
     index: number,
+    contributors: string[],
 }
 
 type FormStruct = {
@@ -23,6 +27,7 @@ type FormStruct = {
     description: FieldState<string>,
     categoryType: FieldState<string>,
     storyType: FieldState<string>,
+    contributors: FieldState<string[]>,
 }
 
 export const CategoryForm = observer((
@@ -32,6 +37,7 @@ export const CategoryForm = observer((
             model: CategoryFormModel,
             callback?: AsyncFormCallback<CategoryFormModel>,
         }) => {
+    const root = useRootStore();
 
     const [store] = useState(() => {
         class Store {
@@ -42,7 +48,8 @@ export const CategoryForm = observer((
                     title: new FieldState(model.title).validators(required()),
                     description: new FieldState(model.description),
                     categoryType: new FieldState(model.category_type),
-                    storyType: new FieldState(model.story_type || "")
+                    storyType: new FieldState(model.story_type || ""),
+                    contributors: new FieldState(model.contributors || [])
                 });
 
                 if (callback) {
@@ -55,6 +62,7 @@ export const CategoryForm = observer((
                                 category_type: this.form.$.categoryType.$,
                                 story_type: this.form.$.storyType.$,
                                 index: model.index,
+                                contributors: this.form.$.contributors.$,
                             };
                             cb(res)
                         } else {
@@ -64,11 +72,18 @@ export const CategoryForm = observer((
                 }
             }
 
+            getContributors = async () => {
+                const contributors = await root.substores.users.fetchContributors();
+                return contributors.map((c: User) => {
+                    return { text: c.username, value: c.username }
+                })
+            }
         }
 
         return new Store();
     });
 
+    const {value, loading} = useWaitForPromise(store.getContributors);
 
     return <div className="stacked-1 w-100">
         <TextField label="Title" state={store.form.$.title} required/>
@@ -86,5 +101,11 @@ export const CategoryForm = observer((
             />
             }
         </div>
+        <MultipleSelector
+            placeholder='Contributors'
+            opts={value || []}
+            loading={loading}
+            state={store.form.$.contributors}
+        />
     </div>
 });

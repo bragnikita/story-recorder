@@ -1,6 +1,8 @@
 import {UiStore} from "./uistore";
 import {Client, HttpRequest} from "../utils/http";
 import {OrderMap} from "../utils/stores";
+import {Expose} from "class-transformer";
+import {jsonToClassSingle} from "../utils/serialization";
 
 export type CategoryChild = Category | Script
 
@@ -26,6 +28,7 @@ export class Category {
     parentId: string | undefined = undefined;
     index: number = -1;
     children: CategoryChild[] = [];
+    contributors: string[] = [];
 
     fromJson = (json: any) => {
         this.id = json._id;
@@ -34,6 +37,7 @@ export class Category {
         this.story_type = json.story_type;
         this.index = json.index;
         this.parentId = json.parentId;
+        this.contributors = json.contributors;
     }
 }
 
@@ -100,11 +104,68 @@ export class CategoriesStore {
         const id = category.id;
         if (id) {
             category.id = undefined;
-            await new Client(this.client).putJson(`/categories/${category.id}`, category);
+            await new Client(this.client).putJson(`/categories/${id}`, {
+                item: category,
+            });
         } else {
-            return await new Client(this.client).postJson(`/categories`, category);
+            return await new Client(this.client).postJson(`/categories`, {item: category});
         }
+    };
+
+    delete = async (id: string) => {
+        return new Client(this.client).delete(`/categories/${id}`)
+    }
+}
+
+export class User {
+    @Expose({name: "_id"})
+    id: string = "";
+    username: string = "";
+
+    asDictItem = () => {
+        return {text: this.username, value: this.id}
+    }
+}
+
+export class UsersStore {
+    root: UiStore;
+    private client: Client;
+
+    constructor(root: UiStore) {
+        this.root = root;
+        this.client = new Client(root.http);
     }
 
+    fetchContributors = async () => {
+        const {data} = await this.client.getJson('/users/contributors');
+        return data.items.map((json: any) => {
+            return jsonToClassSingle(User, json);
+        })
+    };
 
+    fetchAll = async () => {
+        const {data} = await this.client.getJson('/users');
+        return data.items.map((json: any) => {
+            return jsonToClassSingle(User, json);
+        })
+    };
+
+    fetchOne = async (id: string) => {
+        const {data} = await this.client.getJson(`/users/find/id/${id}`);
+        return jsonToClassSingle(User, data.item);
+    };
+
+    fetchByName = async (name: string) => {
+        const {data} = await this.client.getJson(`/users/find/username/${name}`);
+        return jsonToClassSingle(User, data.item);
+    };
+
+    save = async (json: any, id?: string) => {
+        if (id) {
+            await this.client.putJson(`/users/${id}`, {item: json})
+        } else {
+            const {data} = await this.client.postJson(`/users`, {item: json})
+            return data.id
+        }
+    }
 }

@@ -23,27 +23,35 @@ class Store {
     @observable
     list: CategoryChild[] = [];
 
+    selectedId: string | undefined;
     @observable
     selected: CategoryFormModel | undefined = undefined;
 
     @action
     save = async (form: CategoryFormModel) => {
         console.log(inspect(form));
-        await this.rootStore.substores.categories.upsert(form);
+        await this.rootStore.substores.categories.upsert({
+            id: this.selectedId,
+            ...form,
+        });
         this.select();
+        await this.reload(this.category ? this.category.id : "root")
     };
 
     @action
     select = (c?: Category) => {
         if (c) {
+            this.selectedId = c.id;
             this.selected = {
                 title: c.title,
                 description: "",
                 category_type: c.category_type,
                 story_type: c.story_type,
-                index: c.index
+                index: c.index,
+                contributors: c.contributors,
             }
         } else {
+            this.selectedId = undefined;
             this.selected = undefined;
         }
     };
@@ -82,8 +90,13 @@ class Store {
         this.category = await this.rootStore.substores.categories.fetch(id || "root");
         if (this.category) {
             this.list = await this.rootStore.substores.categories.fetchChildCategoriesAndScripts(this.category.id);
-            console.log(inspect(this.list))
         }
+    };
+
+    delete = async () => {
+        if (!this.category) return;
+        await this.rootStore.substores.categories.delete(this.category.id);
+        this.rootStore.router.navigate('category_edit', { id: this.category.parentId })
     }
 
 }
@@ -106,6 +119,9 @@ const CategoryPage = observer(({store}: { store: Store }) => {
             <Button icon={"plus"} content={"Add category"} color="blue" onClick={() => {
                 store.select(store.createNew())
             }}/>
+            {store.category && store.category.parentId &&
+            <Button icon={"trash"} content={"Delete"} color="red" onClick={() => store.delete()}/>
+            }
             <CategoryEditFormModal store={store}/>
         </div>
         <CategoryObjectsList
