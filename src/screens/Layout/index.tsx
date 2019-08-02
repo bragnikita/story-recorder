@@ -55,8 +55,12 @@ export const NonLoggedInLayout = () => {
 
 };
 
-export const ReaderLayout = () => {
-
+export const ReaderLayout = (props: { children: React.ReactNode }) => {
+    return <div className="layout__ReaderLayout">
+        <div className="__wrapper">
+        { props.children }
+        </div>
+    </div>
 };
 
 export const GlobalErrorMessage = observer(() => {

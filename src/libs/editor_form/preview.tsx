@@ -78,7 +78,7 @@ const BlockPreview = ({block}: { block: ScriptBlock }) => {
             </div>;
             break;
         default:
-            component = <div>Unknown block</div>
+            component = null
     }
 
     return component

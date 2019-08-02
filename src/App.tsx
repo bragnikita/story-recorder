@@ -3,10 +3,11 @@ import {observer} from "mobx-react";
 import {Login} from "./screens/Login";
 import {UiStore} from "./stores/uistore";
 import {PageProducer, RootStoreContext, useRootStore} from "./components/hook";
+import {PageProducer as ReaderPageProducer} from './screens/Reader/index';
 import {config} from "./mock-requests";
 import {RouterProvider} from "react-router5";
 import {CategoriesPageProducer} from "./screens/Categories";
-import {ControlLayout} from "./screens/Layout";
+import {ControlLayout, ReaderLayout} from "./screens/Layout";
 import {Loader} from "semantic-ui-react";
 import {State} from "router5";
 import {UsersManagement} from "./screens/Users";
@@ -40,6 +41,11 @@ const PageDisplayer = observer(({store}: { store: UiStore }) => {
         <ControlLayout>
             <LoadablePage2 producer={Producer} state={state} params={{}}/>
         </ControlLayout>
+        }
+        {(name === 'category_read') &&
+        <ReaderLayout>
+            <LoadablePage2 producer={ReaderPageProducer} state={state} params={{}}/>
+        </ReaderLayout>
         }
     </React.Fragment>
 });

@@ -158,9 +158,10 @@ export class ScriptContoller {
 
         });
         if (filtred.length == 0) {
-            const candidate = {name: request};
-            this.list.items.push(candidate);
-            return [candidate];
+            // const candidate = {name: request};
+            // this.list.items.push(candidate);
+            // return [candidate];
+            return []
         } else {
             return filtred;
         }
@@ -203,7 +204,7 @@ export class ScriptContoller {
     importScript = (json: any) => {
         this.title = json.title;
         this.imagesRootPath = json.imagesRootPath;
-        this.rootContainer = this.importFromJson(json.root)
+        this.rootContainer = this.importFromJson(json.root || json)
     };
 
     exportScript = async () => {

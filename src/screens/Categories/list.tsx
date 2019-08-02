@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Loader, Segment} from "semantic-ui-react";
+import {Button, Icon, Loader, Segment} from "semantic-ui-react";
 import {Link} from 'react-router5';
 import './styles.scss';
 import {action, observable} from "mobx";
@@ -135,12 +135,14 @@ const Index = observer(({list, ...rest}: {
         <ul>
             {store.items.map((item) => (
                 <li key={`${item.type}_${item.id}`}>
-                    <div className={classnames("__item category", {
+                    <div className={classnames("__item category flex-vcenter", {
                         'marked': store.marked === item,
                         'hover-marked': !store.marked && store.reordering
                     })}>
-                    <span className="__title flex-vcenter">
-                        <Link routeName={item.type === 'category' ? 'category_edit' : 'script_edit' } routeParams={{id: item.id}}>{item.title}</Link>
+                        <Icon name={item.type === 'category' ? "align justify" : "clipboard outline"}/>
+                        <span className="__title flex-vcenter">
+                        <Link routeName={item.type === 'category' ? 'category_edit' : 'script_edit'}
+                              routeParams={{id: item.id}}>{item.title}</Link>
                     </span>
                         {!store.reordering && <div className="__actions lined pl-1">
                             <Button.Group basic size="small">

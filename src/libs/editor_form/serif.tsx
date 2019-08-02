@@ -157,7 +157,7 @@ class Store {
     onSwitchMode = (e: any, command?: string, mode?: string) => {
         this.type = mode || "";
         this.model.type = mode || "";
-        this.mode = "edit"
+        this.mode = "edit";
         console.log(this.type, this.mode);
     };
 
@@ -166,7 +166,7 @@ class Store {
         this.selected = item;
         this.model.character_name = item.name;
     }
-};
+}
 
 
 const SerifBlock = observer((props: Props) => {

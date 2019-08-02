@@ -165,7 +165,7 @@ export class ScriptProps {
     index: number = -1;
     scriptType: string = 'battle';
     categoryId: string = "";
-    content?: object;
+    content?: { root: any };
 }
 
 export type ScriptPropsUpdatable = {
@@ -251,4 +251,47 @@ export class ScriptsStore {
         //TODO
         return new CharactersList();
     }
+}
+
+export type ReadableCategory = {
+    root: Category,
+    categories: Category[],
+    scripts: Script[],
+}
+
+export class ReaderStore {
+    root: UiStore;
+    private client: Client;
+
+    constructor(root: UiStore) {
+        this.root = root;
+        this.client = new Client(root.http);
+    }
+
+    fetch = async (id: string) => {
+        const {data} = await this.client.getJson(`/reader/c/${id}`);
+        const res = {};
+
+        const root = new Category();
+        root.fromJson(data.root);
+
+        const categories = data.categories.map((c: any) => {
+            const m = new Category();
+            m.fromJson(c);
+            return m;
+        });
+
+        const scripts = data.scripts.map((s: any) => {
+            const m = new Script();
+            m.fromJson(s);
+            return m;
+        });
+
+        return {
+            root,
+            categories,
+            scripts,
+        }
+    }
+
 }

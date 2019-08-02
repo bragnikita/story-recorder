@@ -10,7 +10,7 @@ import _ from 'lodash';
 
 import {inspect} from "util";
 import {GlobalErrorMessage} from "../Layout";
-import {PageProducer} from "../../components/hook";
+import {PageProducer, useRootStore} from "../../components/hook";
 import {Category, CategoryChild} from "../../stores/domain_stores";
 import {Link} from "react-router5";
 import {ScriptParametersForm} from "../Scripts";
@@ -111,6 +111,7 @@ class Store {
 }
 
 const CategoryPage = observer(({store}: { store: Store }) => {
+    const root = useRootStore();
     if (!store.category) return null;
 
     return <div className="page__CategoryPage">
@@ -142,6 +143,15 @@ const CategoryPage = observer(({store}: { store: Store }) => {
                 if (!find) return;
                 if (find.type === "category") {
                     store.select(find as Category)
+                } else {
+                    //TODO
+                }
+            }}
+            onClickView={(id) => {
+                let find = store.find(id);
+                if (!find) return;
+                if (find.type === "category") {
+                    root.router.navigate('category_read', {id: id})
                 } else {
                     //TODO
                 }

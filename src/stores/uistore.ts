@@ -5,7 +5,7 @@ import {MiddlewareFactory} from "router5/types/types/router";
 import {inspect} from "util";
 import {Client, ConfigurableInterceptor, HttpRequest} from "../utils/http";
 import {config} from "../utils/config";
-import {CategoriesStore, ScriptsStore, UsersStore} from "./domain_stores";
+import {CategoriesStore, ReaderStore, ScriptsStore, UsersStore} from "./domain_stores";
 
 
 class Account {
@@ -34,7 +34,10 @@ export class UiStore {
         categories: CategoriesStore,
         users: UsersStore,
         scripts: ScriptsStore,
+        reader: ReaderStore,
     };
+
+    PUBLIC_ROUTES = ['script_read', 'category_read', 'not_found', 'login'];
 
     constructor() {
         const routes: Route[] = [
@@ -102,6 +105,7 @@ export class UiStore {
             categories: new CategoriesStore(this),
             users: new UsersStore(this),
             scripts: new ScriptsStore(this),
+            reader: new ReaderStore(this),
         };
 
 
@@ -123,7 +127,7 @@ export class UiStore {
     private setState = (nextState: State): Promise<any> => {
         console.log('setState', inspect(nextState));
         if (!this.account) {
-            if (!["login", "not_found"].includes(nextState.name)) {
+            if (!this.PUBLIC_ROUTES.includes(nextState.name)) {
                 return Promise.reject({redirect: {name: 'login', params: {returnTo: nextState.path}}})
             }
         } else if (["login"].includes(nextState.name)) {
