@@ -5,7 +5,7 @@ import {MiddlewareFactory} from "router5/types/types/router";
 import {inspect} from "util";
 import {Client, ConfigurableInterceptor, HttpRequest} from "../utils/http";
 import {config} from "../utils/config";
-import {CategoriesStore, UsersStore} from "./domain_stores";
+import {CategoriesStore, ScriptsStore, UsersStore} from "./domain_stores";
 
 
 class Account {
@@ -33,6 +33,7 @@ export class UiStore {
     readonly substores: {
         categories: CategoriesStore,
         users: UsersStore,
+        scripts: ScriptsStore,
     };
 
     constructor() {
@@ -100,6 +101,7 @@ export class UiStore {
         this.substores = {
             categories: new CategoriesStore(this),
             users: new UsersStore(this),
+            scripts: new ScriptsStore(this),
         };
 
 

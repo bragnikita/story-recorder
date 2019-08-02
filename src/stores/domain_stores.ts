@@ -2,22 +2,11 @@ import {UiStore} from "./uistore";
 import {Client, HttpRequest} from "../utils/http";
 import {OrderMap} from "../utils/stores";
 import {Expose} from "class-transformer";
-import {jsonToClassSingle} from "../utils/serialization";
+import {jsonToClassSingle, jsonToObjectSingle} from "../utils/serialization";
+import {CharactersList} from "../libs/editor_form/models";
 
 export type CategoryChild = Category | Script
 
-export class Script {
-    type = "script";
-    id: string = "";
-    title: string = "";
-    index: number = -1;
-
-    fromJson = (json: any) => {
-        this.id = json._id;
-        this.title = json.title;
-        this.index = json.index;
-    }
-}
 
 export class Category {
     type = "category";
@@ -167,5 +156,99 @@ export class UsersStore {
             const {data} = await this.client.postJson(`/users`, {item: json})
             return data.id
         }
+    }
+}
+
+export class ScriptProps {
+    title?: string;
+    charaListId?: string;
+    index: number = -1;
+    scriptType: string = 'battle';
+    categoryId: string = "";
+    content?: object;
+}
+
+export type ScriptPropsUpdatable = {
+    title?: string,
+    charaListId?: string,
+    index?: number,
+    scriptType?: string,
+    categoryId?: string,
+    content?: any,
+}
+
+
+export class Script {
+    id: string = "";
+    props: ScriptProps = new ScriptProps();
+
+    get type() {
+        return this.props.scriptType
+    }
+
+    get title() {
+        return this.props.title
+    }
+
+    get index() {
+        return this.props.index
+    }
+
+    set index(index: number) {
+        this.props.index = index;
+    }
+
+    fromJson = (json: any) => {
+        jsonToObjectSingle(this.props, json);
+        this.id = json._id;
+    }
+}
+
+export class ScriptsStore {
+    root: UiStore;
+    private client: Client;
+
+    constructor(root: UiStore) {
+        this.root = root;
+        this.client = new Client(root.http);
+    }
+
+    create = async (props: ScriptProps) => {
+        const {data} = await this.client.postJson("/scripts", {item: props})
+        return data.id
+    };
+    fetch = async (id: string) => {
+        const {data} = await this.client.getJson(`/scripts/${id}`);
+        const s = new Script();
+        s.fromJson(data.item);
+        return s;
+    };
+    save = async (id: string, props: ScriptPropsUpdatable) => {
+        await this.client.putJson(`/scripts/${id}`, {
+            item: props
+        });
+    };
+
+    imageUpload = async (scriptId: string, blockId: string, file: File) => {
+        const form = new FormData();
+        form.set('file', file);
+        const c = this.client.req;
+        c.beforeRequest = config => {
+            config.headers['Accept'] = 'application/json';
+            config.headers['content-type'] = "multipart/form-data";
+        };
+        const path = `/uploads/${scriptId}/${blockId}`;
+        const {data} = await c.request('post', path, form);
+        return data.url
+    };
+
+    imageDelete = async (scriptId: string, blockId: string) => {
+        const path = `/uploads/${scriptId}/${blockId}`;
+        await this.client.delete(path)
+    };
+
+    fetchCharaList = async (id: string) => {
+        //TODO
+        return new CharactersList();
     }
 }

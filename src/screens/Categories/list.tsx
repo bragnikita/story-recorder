@@ -140,7 +140,7 @@ const Index = observer(({list, ...rest}: {
                         'hover-marked': !store.marked && store.reordering
                     })}>
                     <span className="__title flex-vcenter">
-                        <Link routeName="category_edit" routeParams={{id: item.id}}>{item.title}</Link>
+                        <Link routeName={item.type === 'category' ? 'category_edit' : 'script_edit' } routeParams={{id: item.id}}>{item.title}</Link>
                     </span>
                         {!store.reordering && <div className="__actions lined pl-1">
                             <Button.Group basic size="small">

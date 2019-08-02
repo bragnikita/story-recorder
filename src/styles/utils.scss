@@ -50,7 +50,6 @@
   @include stacked(1.5em);
 }
 
-
 .flex-grow-0 {
   flex-grow: 0;
 }
@@ -114,4 +113,9 @@
 
 .w-50 {
   width: 50%;
+}
+
+.title-1 {
+  font-weight: bold;
+  font-size: 18px;
 }

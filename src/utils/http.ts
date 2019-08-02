@@ -123,6 +123,9 @@ export class HttpRequest {
         if (data) {
             if (verb === "get" || verb === "delete") {
                 r.query(data)
+            } else if (data.constructor == FormData) {
+                r.unset('content-type');
+                r.send(data);
             } else {
                 r.send(data);
             }

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {CategoryObjectsList} from "./list";
 import {UiStore} from "../../stores/uistore";
 import {Button, Header, Modal} from "semantic-ui-react";
@@ -13,6 +13,7 @@ import {GlobalErrorMessage} from "../Layout";
 import {PageProducer} from "../../components/hook";
 import {Category, CategoryChild} from "../../stores/domain_stores";
 import {Link} from "react-router5";
+import {ScriptParametersForm} from "../Scripts";
 
 class Store {
 
@@ -26,6 +27,9 @@ class Store {
     selectedId: string | undefined;
     @observable
     selected: CategoryFormModel | undefined = undefined;
+
+    @observable
+    createScriptModalOpened: boolean = false;
 
     @action
     save = async (form: CategoryFormModel) => {
@@ -96,8 +100,13 @@ class Store {
     delete = async () => {
         if (!this.category) return;
         await this.rootStore.substores.categories.delete(this.category.id);
-        this.rootStore.router.navigate('category_edit', { id: this.category.parentId })
+        this.rootStore.router.navigate('category_edit', {id: this.category.parentId})
+    };
+
+    requestScript = () => {
+        this.createScriptModalOpened = true;
     }
+
 
 }
 
@@ -106,6 +115,7 @@ const CategoryPage = observer(({store}: { store: Store }) => {
 
     return <div className="page__CategoryPage">
         <GlobalErrorMessage/>
+        <ScriptCreateModal store={store} />
         <div className="mb-2">
             <Header textAlign={"left"}>
                 {store.category.parentId &&
@@ -115,6 +125,7 @@ const CategoryPage = observer(({store}: { store: Store }) => {
         </div>
         <div className="lined-1 flex-right mb-2">
             <Button icon={"plus"} content={"Add script"} color="green" onClick={() => {
+                store.requestScript();
             }}/>
             <Button icon={"plus"} content={"Add category"} color="blue" onClick={() => {
                 store.select(store.createNew())
@@ -175,6 +186,19 @@ const CategoryEditFormModal = observer(({store}: { store: Store }) => {
                 });
             }}>Save</Button>
         </Modal.Actions>
+    </Modal>
+});
+
+const ScriptCreateModal = observer(({store}: { store: Store }) => {
+    if (!store.category) return null;
+    return <Modal
+        open={store.createScriptModalOpened}
+        onClose={() => store.createScriptModalOpened = false}
+    >
+        <Header content="New script"/>
+        <Modal.Content>
+            <ScriptParametersForm categoryId={store.category.id}/>
+        </Modal.Content>
     </Modal>
 });
 

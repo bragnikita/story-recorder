@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import './App.css';
 import {observer} from "mobx-react";
 import {Login} from "./screens/Login";
 import {UiStore} from "./stores/uistore";
@@ -11,6 +10,8 @@ import {ControlLayout} from "./screens/Layout";
 import {Loader} from "semantic-ui-react";
 import {State} from "router5";
 import {UsersManagement} from "./screens/Users";
+import {Producer} from "./screens/Scripts";
+import {LoadablePage2} from "./components/pages";
 
 
 const PageDisplayer = observer(({store}: { store: UiStore }) => {
@@ -32,7 +33,12 @@ const PageDisplayer = observer(({store}: { store: UiStore }) => {
         </ControlLayout>}
         {(name.startsWith('users')) &&
         <ControlLayout>
-            <UsersManagement />
+            <UsersManagement/>
+        </ControlLayout>
+        }
+        {(name === 'script_edit') &&
+        <ControlLayout>
+            <LoadablePage2 producer={Producer} state={state} params={{}}/>
         </ControlLayout>
         }
     </React.Fragment>

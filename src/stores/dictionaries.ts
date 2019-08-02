@@ -39,3 +39,14 @@ export const StoryTypes: Dictionary = {
     name: "story.types", title: "Story types"
 };
 
+export const ScriptTypes: Dictionary = {
+    items: [
+        { value: "battle", label: "Battle"},
+        { value: "page", label: "Page"},
+    ],
+    get default() {
+        return this.items[0]
+    },
+    name: "script.types", title: "Script type"
+};
+

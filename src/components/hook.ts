@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {UiStore} from "../stores/uistore";
 import {State} from "router5";
 
@@ -43,6 +43,11 @@ export const useWaitForPromise = <T>( p: () => Promise<T>) => {
         })
     },[p]);
     return s;
+};
+
+export const useComponentStore = <T>(p: () => T) => {
+    const [store]  = useState(p);
+    return store;
 };
 
 export type PageFactory = () => JSX.Element;

@@ -3,6 +3,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 
+import './App.css';
+import './libs/editor_form/bulma.css';
+import './libs/editor_form/myscss.scss';
+import './libs/editor_form/preview.scss';
+import '@fortawesome/fontawesome-free/js/fontawesome'
+import '@fortawesome/fontawesome-free/js/solid'
+import '@fortawesome/fontawesome-free/js/regular'
+import '@fortawesome/fontawesome-free/js/brands'
 import './index.scss';
 
 import * as serviceWorker from './serviceWorker';
