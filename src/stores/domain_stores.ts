@@ -91,8 +91,8 @@ export class CategoriesStore {
 
     upsert = async (category: any) => {
         const id = category.id;
+        category.id = undefined;
         if (id) {
-            category.id = undefined;
             await new Client(this.client).putJson(`/categories/${id}`, {
                 item: category,
             });
@@ -137,6 +137,11 @@ export class UsersStore {
         return data.items.map((json: any) => {
             return jsonToClassSingle(User, json);
         })
+    };
+
+    fetchMe = async () => {
+        const {data} = await this.client.getJson('/users/me');
+        return data ? jsonToClassSingle(User, data.item) : undefined;
     };
 
     fetchOne = async (id: string) => {

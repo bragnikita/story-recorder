@@ -73,9 +73,24 @@ const store = new UiStore();
 
 config(store.httpInterceptor);
 
-store.tryAutoSignIn();
+store.tryAutoSignIn().then(() => {
+
+});
 
 const App: React.FC = () => {
+
+    const [waiting, setWaiting] = useState(true);
+
+    useEffect(() => {
+        store.tryAutoSignIn().finally(() => {
+            setWaiting(false);
+        })
+    },[]);
+
+    if (waiting) {
+        return <Loader active className="w-100 d-flex justify-content-center"/>
+    }
+
     return (
         <div className="app-root">
             <RootStoreContext.Provider value={store}>

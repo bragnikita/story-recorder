@@ -41,7 +41,7 @@ export const SmallIconButton = <T extends {}>(props: ButtonProps<T> & { iconSpec
     </div>
 };
 
-export const SaveButton = (props: {
+export const PrimaryButton = (props: {
     label: string,
     onClick: () => Promise<void>
     disabled?: boolean,

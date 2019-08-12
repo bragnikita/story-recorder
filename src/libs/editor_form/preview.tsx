@@ -87,7 +87,7 @@ const BlockPreview = ({block}: { block: ScriptBlock }) => {
 const PreviewDialog = (props: PreviewPanelProps) => {
     const [open, setOpen] = useState(false);
     useEffect(()=> {
-        const html = window.document.getElementsByTagName('html')[0]
+        const html = window.document.getElementsByTagName('html')[0];
         if (open) {
             html.classList.add('is-clipped')
         } else {

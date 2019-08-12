@@ -3,7 +3,7 @@ import {CategoryObjectsList} from "./list";
 import {UiStore} from "../../stores/uistore";
 import {Button, Header, Modal} from "semantic-ui-react";
 import {CategoryForm, CategoryFormModel} from "./form";
-import {action, observable} from "mobx";
+import {action, observable, runInAction} from "mobx";
 import {AsyncFormCallbackImpl, OrderMap} from "../../utils/stores";
 import {observer} from "mobx-react";
 import _ from 'lodash';
@@ -34,8 +34,10 @@ class Store {
     @action
     save = async (form: CategoryFormModel) => {
         console.log(inspect(form));
+        if (!this.category) return;
         await this.rootStore.substores.categories.upsert({
             id: this.selectedId,
+            parentId: this.category.id,
             ...form,
         });
         this.select();
@@ -93,7 +95,11 @@ class Store {
     reload = async (id: string) => {
         this.category = await this.rootStore.substores.categories.fetch(id || "root");
         if (this.category) {
-            this.list = await this.rootStore.substores.categories.fetchChildCategoriesAndScripts(this.category.id);
+            const list = await this.rootStore.substores.categories.fetchChildCategoriesAndScripts(this.category.id);
+            runInAction(() => {
+                this.list.splice(0, this.list.length);
+                this.list.push(...list);
+            })
         }
     };
 

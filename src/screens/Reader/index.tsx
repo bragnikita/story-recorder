@@ -45,12 +45,15 @@ const CategoriesMenu = ({model}: { model: ReadableCategory }) => {
 
 const Index = ({model}: { model: ReadableCategory }) => {
     const root = useRootStore();
+    console.log(root.account);
     return <div className="reader">
         <div className="flex-between category_header">
             <div className="title-1">{model.root.title}</div>
             <div className="line-1">
+                {!root.account.guest &&
                 <Button circular icon={"pencil"} basic color="green"
-                        onClick={()=> root.router.navigate('category_edit', {id: model.root.id})}/>
+                        onClick={() => root.router.navigate('category_edit', {id: model.root.id})}/>
+                }
                 {model.root.parentId &&
                 <Button icon="angle double left"
                         onClick={() => root.router.navigate('category_read', {id: model.root.parentId})}

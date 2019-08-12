@@ -97,6 +97,7 @@ class Store {
             this.text = before + '_' + wrapped + '_' + after;
             afterPos = this.selection.end + 2;
         }
+        this.onEditText(this.text);
         this.setSelectedRange();
         if (this.getFocus) {
             let ref = this.getFocus().current;
@@ -203,7 +204,7 @@ const SerifBlock = observer((props: Props) => {
                 data.setCursorTo = -1;
             }
         }
-    }, [data.setCursorTo])
+    }, [data.setCursorTo]);
 
     const opts = data.allCandidates.map((item: SelectorCandidate) => ({value: item, label: item.name}));
     let value: any = opts.find((o) => o.value === data.selected) || null;

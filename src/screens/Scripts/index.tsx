@@ -14,7 +14,9 @@ import {TextField} from "../../components/form/textfields";
 import {Button} from "semantic-ui-react";
 import {PreviewDialog} from "../../libs/editor_form/preview";
 import {CharacterEditDialog} from "../../libs/editor_form/chara_list";
-import {SaveButton} from "../../libs/editor_form/components";
+import {PrimaryButton} from "../../libs/editor_form/components";
+import "./styles.scss";
+import {Export} from "./export";
 
 
 class FormStore {
@@ -113,31 +115,40 @@ class ScriptEditorStore {
         }
         this.controller = controller;
     }
+
+    getJson = async () => {
+        return this.controller.rootContainer.serialize();
+    }
 }
 
 const ScriptEditorPage = ({store}: { store: ScriptEditorStore }) => {
     const root = useRootStore();
     const onClose = useCallback(() => root.router.navigate('category_edit', {id: store.script.props.categoryId}), []);
     return <div className="stacked-3">
-        <div className="header lined-2 flex-vcenter">
-            <Button icon="angle double left"
-                    onClick={onClose}
-            />
-            <span className="title-1 ml-3">{store.script.title}</span>
+        <div className="header lined-2 flex-vcenter flex-between">
+            <div>
+                <Button icon="angle double left"
+                        onClick={onClose}
+                />
+                <span className="title-1 ml-3">{store.script.title}</span>
+            </div>
+            <div>
+                <Export getJson={store.getJson}/>
+            </div>
         </div>
         <ScriptEditor store={store} onClose={onClose}/>
     </div>
 };
 
-const ScriptEditor = (props: { store: ScriptEditorStore, onClose?: ()=>void }) => {
+const ScriptEditor = (props: { store: ScriptEditorStore, onClose?: () => void }) => {
     const controller = props.store.controller;
     const rootBlock = controller.rootContainer.data as ContainerData;
     const block = new BlockContainerController(controller.rootContainer.id, rootBlock.blocks);
-    return <div className="bm stacked-3">
+    return <div className="bm stacked-3 script_editor_base">
         <div className="w-100 flex-between">
             <div className="lined-2">
-                <SaveButton label={"Save"} onClick={controller.exportScript}/>
-                <SaveButton label={"Save and close"} onClick={async () => {
+                <PrimaryButton label={"Save"} onClick={controller.exportScript}/>
+                <PrimaryButton label={"Save and close"} onClick={async () => {
                     await controller.exportScript();
                     props.onClose && props.onClose();
                 }}/>

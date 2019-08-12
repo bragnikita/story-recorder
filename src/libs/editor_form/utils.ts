@@ -5,18 +5,18 @@ export const processFormattedText = (src: string): string => {
     let replacer2 = new Replacer(')', '\\)', '&:rbrake:');
     s = replacer1.direct(s);
     s = replacer2.direct(s);
-    s = s.replace(/(\((.+)\))/gm, '<span class="minds">$1</span>');
+    s = s.replace(/(\((.+?)\))/gm, '<span class="minds">$1</span>');
     s = replacer2.back(s);
     s = replacer1.back(s);
 
     let replacer = new Replacer('*', '\\*', '&:star:');
     s = replacer.direct(s);
-    s = s.replace(/(\*(.+)\*)/gm, '<span class="emotions">$1</span>');
+    s = s.replace(/(\*(.+?)\*)/gm, '<span class="emotions">$1</span>');
     s = replacer.back(s);
 
      replacer = new Replacer('_', '\\_', '&:underscore:');
     s = replacer.direct(s);
-    s = s.replace(/(_(.+)_)/gm, '<span class="emphasis">$2</span>');
+    s = s.replace(/(_(.+?)_)/gm, '<span class="emphasis">$2</span>');
     s = replacer.back(s);
 
     return s;

@@ -9,7 +9,15 @@ import {CategoriesStore, ReaderStore, ScriptsStore, UsersStore} from "./domain_s
 
 
 class Account {
+    username = "__guest__";
 
+    constructor(user: any) {
+        this.username = user.username;
+    }
+
+    get guest() {
+        return this.username === "__guest__"
+    }
 }
 
 export class UiStore {
@@ -20,7 +28,7 @@ export class UiStore {
     private _http: Client;
     httpInterceptor: ConfigurableInterceptor = new ConfigurableInterceptor();
 
-    private account: Account | undefined = undefined;
+    account: Account = new Account({username: '__guest__'});
 
 
     errorMessage = observable({
@@ -126,7 +134,7 @@ export class UiStore {
     @action
     private setState = (nextState: State): Promise<any> => {
         console.log('setState', inspect(nextState));
-        if (!this.account) {
+        if (this.account.guest) {
             if (!this.PUBLIC_ROUTES.includes(nextState.name)) {
                 return Promise.reject({redirect: {name: 'login', params: {returnTo: nextState.path}}})
             }
@@ -185,20 +193,23 @@ export class UiStore {
         if (error) {
             return error.getMessage();
         }
-        const acc = new Account();
+        const acc = new Account({username: '__guest__'});
         this.saveAuthToken(data.token);
         this.signIn(acc);
         return null;
     };
 
     tryAutoSignIn = async () => {
+        const starterPath = this.router.matchPath(window.location.pathname);
         if (this.getAuthToken()) {
-            this.signIn(new Account());
-            const starterPath = this.router.matchPath(window.location.pathname);
-            if (starterPath) {
-                this.router.navigate(starterPath.name, starterPath.params)
-            } else {
-                this.router.navigate('categories')
+            const me = await this.substores.users.fetchMe();
+            if (me) {
+                this.signIn(new Account(me));
+                if (starterPath) {
+                    this.router.navigate(starterPath.name, starterPath.params)
+                } else {
+                    this.router.navigate('categories')
+                }
             }
         }
     }

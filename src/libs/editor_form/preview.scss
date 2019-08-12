@@ -30,6 +30,7 @@
     }
 
     .text {
+      white-space: pre-wrap;
       padding-left: 5px;
       flex-grow: 1;
       text-align: left;
@@ -168,7 +169,7 @@
   }
 
   .reader_categories_menu {
-
+    min-height: 150px;
     margin: 0 20px;
     background-color: #d484652e;
     padding: 15px 22px;
