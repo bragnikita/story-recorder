@@ -1,16 +1,11 @@
-import React, {ReactElement, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import styled from "styled-components";
 import {observer, useLocalStore} from "mobx-react";
 import {FieldState} from "formstate";
 import SerifBlock from "./serif";
-import {
-    ScriptBlock,
-    SimpleTextData,
-    ImageData,
-    ContainerData
-} from "./models";
-import {ContainerBlock, DescriptionBlock, EventBlock, FreeTextBlockProps, ImageBlock} from "./blocks";
-import {IconButton, SmallIconButton} from "./components";
+import {ContainerData, ImageData, ScriptBlock, SimpleTextData} from "./models";
+import {ContainerBlock, DescriptionBlock, EventBlock, FreeTextBlock, ImageBlock} from "./blocks";
+import {SmallIconButton} from "./components";
 import {BlockContainerController, ScriptContoller} from "./controller";
 
 const Input = styled.input`
@@ -46,7 +41,7 @@ export const buildComponent = (block: ScriptBlock, container: BlockContainerCont
         />
     }
     if (type === "freetext") {
-        return <FreeTextBlockProps key={block.id} data={block.data as SimpleTextData} hotkeys={hotkeys}/>
+        return <FreeTextBlock key={block.id} data={block.data as SimpleTextData} hotkeys={hotkeys}/>
     }
     if (type === "container") {
         const data = block.data as ContainerData;

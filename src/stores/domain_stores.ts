@@ -140,7 +140,9 @@ export class UsersStore {
     };
 
     fetchMe = async () => {
-        const {data} = await this.client.getJson('/users/me');
+        const c = this.client.req;
+        c.errorHandler = () => false;
+        const {data} = await c.getJson('/users/me');
         return data ? jsonToClassSingle(User, data.item) : undefined;
     };
 
@@ -299,4 +301,33 @@ export class ReaderStore {
         }
     }
 
+}
+
+export class CharaListStore {
+    root: UiStore;
+    private client: Client;
+
+    constructor(root: UiStore) {
+        this.root = root;
+        this.client = new Client(root.http);
+    }
+    
+    fetchOne = async (id: string) => {
+        const {data} = await this.client.getJson(`/chara_lists/${id}`);
+        return this.deserialize(data.item);
+    };
+
+    fetchAll = async (id: string) => {
+        const {data} = await this.client.getJson(`/chara_lists/${id}`);
+        return data.items.map(this.deserialize);
+    };
+    
+    private deserialize = (json: any) => {
+        const list = new CharactersList();
+        list.title = json.title;
+        list.items = json.items.map((i: any) => {
+            return { name: i }
+        });
+        return list;
+    }
 }

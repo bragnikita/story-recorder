@@ -5,7 +5,7 @@ import {FieldState} from "formstate";
 import {action, observable, runInAction} from "mobx";
 import classnames from 'classnames';
 import _ from 'lodash';
-import {useInputHotKeys} from "./hooks";
+import {useAutoCatchFocus, useInputHotKeys} from "./hooks";
 import {CharactersList, CharaListItem} from "./models";
 import Select from "react-select";
 
@@ -235,3 +235,28 @@ export const CharacterListList = observer((props: {
         </div>
     })
 ;
+
+const SavePanel = (props:{onTitle: (title: string) => void}) => {
+
+    let ref = useAutoCatchFocus<HTMLInputElement>();
+    const [store] = useState(() => {
+       class Store {
+           title = new FieldState("");
+           commit = () => props.onTitle(this.title.$);
+       }
+       return new Store();
+    });
+
+    return <div className="lined-2 flex-vcenter">
+        <input type="text" className="input flex-grow-1"
+               value={store.title.value}
+               onChange={(e) => store.title.onChange(e.target.value)}
+               ref={ref}
+        />
+        {store.title.value &&
+        <div className="lined-1">
+            <IconButton onClick={store.commit} iconSpec="fas fa-check"/>
+        </div>
+        }
+    </div>
+};

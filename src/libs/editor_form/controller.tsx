@@ -168,7 +168,7 @@ export class ScriptContoller {
     };
 
     uploadImage = async (blockId: string, file: File) => {
-        console.log('Uploading', blockId, file.name)
+        console.log('Uploading', blockId, file.name);
         if (this.config) {
             return await this.config.onImageUpload(file, blockId);
         }
@@ -224,6 +224,9 @@ export class ScriptContoller {
                     this.list.items.push({ name: charaName });
                 }
             }
+        }
+        if (block.type === "freetext") {
+            data = data = plainToClassFromExist(new SimpleTextData(), json.data);
         }
         if (block.type === "event") {
             data = plainToClassFromExist(new SimpleTextData(), json.data);

@@ -5,7 +5,8 @@ import {MiddlewareFactory} from "router5/types/types/router";
 import {inspect} from "util";
 import {Client, ConfigurableInterceptor, HttpRequest} from "../utils/http";
 import {config} from "../utils/config";
-import {CategoriesStore, ReaderStore, ScriptsStore, UsersStore} from "./domain_stores";
+import {CategoriesStore, CharaListStore, ReaderStore, ScriptsStore, UsersStore} from "./domain_stores";
+import {CharactersList} from "../libs/editor_form/models";
 
 
 class Account {
@@ -43,6 +44,7 @@ export class UiStore {
         users: UsersStore,
         scripts: ScriptsStore,
         reader: ReaderStore,
+        chara_lists: CharaListStore,
     };
 
     PUBLIC_ROUTES = ['script_read', 'category_read', 'not_found', 'login'];
@@ -114,6 +116,7 @@ export class UiStore {
             users: new UsersStore(this),
             scripts: new ScriptsStore(this),
             reader: new ReaderStore(this),
+            chara_lists: new CharaListStore(this),
         };
 
 
@@ -193,7 +196,7 @@ export class UiStore {
         if (error) {
             return error.getMessage();
         }
-        const acc = new Account({username: '__guest__'});
+        const acc = new Account(data.user);
         this.saveAuthToken(data.token);
         this.signIn(acc);
         return null;

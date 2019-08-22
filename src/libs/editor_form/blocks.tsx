@@ -24,7 +24,7 @@ interface FreeTextBlockProps {
     hotkeys: Hotkeys
 }
 
-export const FreeTextBlockProps  = observer((props:FreeTextBlockProps) => {
+export const FreeTextBlock  = observer((props:FreeTextBlockProps) => {
     const store = useLocalStore(() => {
         const o = {
             field: new FieldState<string>(props.data.text)
