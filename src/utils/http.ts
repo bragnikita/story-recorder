@@ -63,7 +63,7 @@ export class HttpRequest {
         let headers: RequestParamsMap = {};
         headers['Cache-Control'] = 'no-cache,no-store';
         headers['Pragma'] = 'no-cache';
-        headers['content-type'] = this.contentType;
+        headers['Content-type'] = this.contentType;
 
         const cookies: RequestParamsMap = {};
 

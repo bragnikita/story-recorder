@@ -242,7 +242,7 @@ export class ScriptsStore {
         const c = this.client.req;
         c.beforeRequest = config => {
             config.headers['Accept'] = 'application/json';
-            config.headers['content-type'] = "multipart/form-data";
+            config.headers['Content-type'] = "";
         };
         const path = `/uploads/${scriptId}/${blockId}`;
         const {data} = await c.request('post', path, form);
