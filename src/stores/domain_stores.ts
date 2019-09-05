@@ -299,6 +299,16 @@ export class ReaderStore {
             categories,
             scripts,
         }
+    };
+
+    goRel = async (dir: 'next' | 'prev', fromId: string, fallbackId?: string) => {
+        const {data} = await this.client.getJson(`/reader/${fromId}/${dir}`);
+        const status = data.status;
+        if (status === 'ok') {
+            this.root.router.navigate('category_read', {id: data.info.id } )
+        } else if (fallbackId) {
+            this.root.router.navigate('category_read', {id: fallbackId } )
+        }
     }
 
 }
