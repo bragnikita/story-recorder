@@ -160,7 +160,7 @@ export class UsersStore {
         if (id) {
             await this.client.putJson(`/users/${id}`, {item: json})
         } else {
-            const {data} = await this.client.postJson(`/users`, {item: json})
+            const {data} = await this.client.postJson(`/users`, {item: json});
             return data.id
         }
     }
@@ -221,7 +221,7 @@ export class ScriptsStore {
     }
 
     create = async (props: ScriptProps) => {
-        const {data} = await this.client.postJson("/scripts", {item: props})
+        const {data} = await this.client.postJson("/scripts", {item: props});
         return data.id
     };
     fetch = async (id: string) => {
@@ -257,6 +257,10 @@ export class ScriptsStore {
     fetchCharaList = async (id: string) => {
         //TODO
         return new CharactersList();
+    };
+
+    deleteScript = async (id: string) => {
+        await this.client.delete(`/scripts/${id}`)
     }
 }
 

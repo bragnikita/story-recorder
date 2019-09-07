@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {CategoryObjectsList} from "./list";
 import {UiStore} from "../../stores/uistore";
 import {Button, Header, Modal} from "semantic-ui-react";
@@ -7,8 +7,6 @@ import {action, observable, runInAction} from "mobx";
 import {AsyncFormCallbackImpl, OrderMap} from "../../utils/stores";
 import {observer} from "mobx-react";
 import _ from 'lodash';
-
-import {inspect} from "util";
 import {GlobalErrorMessage} from "../Layout";
 import {PageProducer, useRootStore} from "../../components/hook";
 import {Category, CategoryChild} from "../../stores/domain_stores";
@@ -33,7 +31,6 @@ class Store {
 
     @action
     save = async (form: CategoryFormModel) => {
-        console.log(inspect(form));
         if (!this.category) return;
         await this.rootStore.substores.categories.upsert({
             id: this.selectedId,
@@ -111,9 +108,12 @@ class Store {
 
     requestScript = () => {
         this.createScriptModalOpened = true;
+    };
+
+    read = () => {
+        if (!this.category) return;
+        this.rootStore.router.navigate('category_read', {id: this.category.id})
     }
-
-
 }
 
 const CategoryPage = observer(({store}: { store: Store }) => {
@@ -122,7 +122,7 @@ const CategoryPage = observer(({store}: { store: Store }) => {
 
     return <div className="page__CategoryPage">
         <GlobalErrorMessage/>
-        <ScriptCreateModal store={store} />
+        <ScriptCreateModal store={store}/>
         <div className="mb-2">
             <Header textAlign={"left"}>
                 {store.category.parentId &&
@@ -130,17 +130,22 @@ const CategoryPage = observer(({store}: { store: Store }) => {
                 {store.category.title}
             </Header>
         </div>
-        <div className="lined-1 flex-right mb-2">
-            <Button icon={"plus"} content={"Add script"} color="green" onClick={() => {
-                store.requestScript();
-            }}/>
-            <Button icon={"plus"} content={"Add category"} color="blue" onClick={() => {
-                store.select(store.createNew())
-            }}/>
-            {store.category && store.category.parentId &&
-            <Button icon={"trash"} content={"Delete"} color="red" onClick={() => store.delete()}/>
-            }
-            <CategoryEditFormModal store={store}/>
+        <div className="flex-between mb-2">
+            <div>
+                <Button icon={"eye"} basic color={"blue"} onClick={store.read}/>
+            </div>
+            <div className="lined-1">
+                <Button icon={"plus"} content={"Add script"} color="green" onClick={() => {
+                    store.requestScript();
+                }}/>
+                <Button icon={"plus"} content={"Add category"} color="blue" onClick={() => {
+                    store.select(store.createNew())
+                }}/>
+                {store.category && store.category.parentId &&
+                <Button icon={"trash"} content={"Delete"} color="red" onClick={() => store.delete()}/>
+                }
+                <CategoryEditFormModal store={store}/>
+            </div>
         </div>
         <CategoryObjectsList
             list={store.list}
